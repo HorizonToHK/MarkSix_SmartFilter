@@ -1,0 +1,592 @@
+<!DOCTYPE html><html lang="en"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qubeley's Integrated Arithmetic Complexity Calculator for Mark Six</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background-color:#000000;color:#d0d0d0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.65;min-height:100vh}
+.container{max-width:960px;margin:0 auto;padding:24px 16px}
+h1{color:#00d4ff;font-size:1.5rem;text-align:center;margin-bottom:4px;letter-spacing:.5px}
+.subtitle{color:#666;text-align:center;font-size:.9rem;margin-bottom:28px}
+h2{color:#f0c040;font-size:1.15rem;margin:28px 0 8px;padding-bottom:6px;border-bottom:1px solid #2a2a2a}
+h3{color:#50e890;font-size:1rem;margin:16px 0 6px}
+.info{color:#555;font-size:.82rem;font-style:italic;margin:4px 0 12px}
+label{display:block;color:#999;font-size:.88rem;margin-bottom:4px}
+textarea,input[type="text"]{width:100%;background:#0a0a0a;color:#00e87b;border:1px solid #2a2a2a;border-radius:5px;padding:10px 12px;font-family:'Courier New',Consolas,monospace;font-size:.88rem;transition:border-color .2s}
+textarea{min-height:110px;resize:vertical}
+textarea:focus,input[type="text"]:focus{outline:none;border-color:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,.15)}
+.btn{display:inline-block;padding:11px 28px;font-size:.95rem;font-weight:600;border:none;border-radius:6px;cursor:pointer;transition:all .25s;letter-spacing:.3px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,#005faa,#00c8ff);color:#fff}
+.btn-primary:hover:not(:disabled){box-shadow:0 0 14px rgba(0,200,255,.35)}
+.btn-gold{background:linear-gradient(135deg,#b87800,#ffd050);color:#000}
+.btn-gold:hover:not(:disabled){box-shadow:0 0 14px rgba(255,208,80,.4)}
+.btn-dark{background:#222;color:#aaa}
+.btn-dark:hover{background:#333}
+.btn-row{text-align:center;margin:18px 0}
+hr.sep{border:none;border-top:1px solid #1a1a1a;margin:18px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
+.stat{background:#0c0c0c;border:1px solid #222;border-radius:6px;padding:10px;text-align:center}
+.stat b{display:block;font-size:1.6rem;color:#00d4ff}
+.stat span{font-size:.78rem;color:#666}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:8px 0}
+th{background:#111;color:#00b8e6;text-align:left;padding:7px 10px;font-size:.82rem;border-bottom:2px solid #222;white-space:nowrap}
+td{padding:5px 10px;font-size:.83rem;border-bottom:1px solid #151515;font-family:'Courier New',Consolas,monospace}
+tr:hover td{background:#0c0c0c}
+.c-num{color:#fff;letter-spacing:1.5px}
+.ac-ok{color:#00e87b}
+.ac-warn{color:#ffa800}
+.ac-bad{color:#ff4455}
+.coll-hdr{cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px}
+.coll-hdr:hover{opacity:.85}
+.coll-icon{transition:transform .2s;display:inline-block;font-size:.75rem}
+.coll-icon.closed{transform:rotate(-90deg)}
+.alert{padding:10px 14px;border-radius:5px;margin:10px 0;font-size:.88rem}
+.alert-warn{background:#1a1200;border:1px solid #4a3800;color:#ffa800}
+.alert-ok{background:#001a0c;border:1px solid #004a2c;color:#00e87b}
+.alert-info{background:#001020;border:1px solid #003060;color:#60b0ff}
+.gcard{background:#0a0a0a;border:1px solid #282828;border-radius:8px;padding:16px;margin:14px 0}
+.gcard-title{color:#f0c040;font-weight:700;font-size:1.05rem;margin-bottom:8px}
+.gcard-nums{font-size:1.35rem;color:#00e87b;font-family:'Courier New',Consolas,monospace;letter-spacing:3px;margin:6px 0 10px}
+.gcard-meta{display:flex;flex-wrap:wrap;gap:16px;font-size:.83rem;color:#888}
+.gcard-meta strong{color:#ccc}
+.sub-list{margin-top:10px;max-height:260px;overflow-y:auto;font-size:.8rem;font-family:'Courier New',Consolas,monospace}
+.sub-item{padding:2px 6px}
+.sub-g{color:#00e87b}
+.sub-b{color:#ff4455}
+.sub-match{background:#0a1a0a;border-left:2px solid #00e87b}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:1000;justify-content:center;align-items:center}
+.modal-bg.open{display:flex}
+.modal-box{background:#111;border:1px solid #3a3a3a;border-radius:10px;padding:28px;max-width:460px;width:90%;text-align:center}
+.modal-box h3{color:#f0c040;margin-bottom:12px}
+.modal-box p{color:#999;font-size:.9rem;margin-bottom:12px}
+.modal-box .btn{margin:6px}
+footer{text-align:center;margin-top:40px;padding:18px 0;border-top:1px solid #1a1a1a;color:#999;font-size:.82rem}
+.hidden{display:none!important}
+@media(max-width:600px){.container{padding:12px 10px}h1{font-size:1.15rem}.stats{grid-template-columns:repeat(2,1fr)}.btn{padding:9px 18px;font-size:.88rem}td,th{padding:4px 6px;font-size:.78rem}.gcard-nums{font-size:1.1rem;letter-spacing:2px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🎯 Qubeley's Integrated Arithmetic Complexity Calculator</h1>
+<p class="subtitle">Mark Six (六合彩) — 6 / 49 Lottery Analysis Tool</p>
+
+<!-- PART 1 -->
+<h2>Part 1 — 獨立注 Input (Your Generated Combinations)</h2>
+<label for="inp1">Paste your 6-number combinations (one per line):</label>
+<textarea id="inp1" placeholder="[001] 01 11 18 21 23 46
+[002] 06 16 30 38 39 48
+[003] 04 22 31 33 41 42
+— or without prefixes —
+01 11 18 21 23 46
+06,16,30,38,39,48"></textarea>
+<p class="info">Formats accepted: with [ID] prefix, space-separated, or comma-separated. Numbers 01–49.</p>
+
+<hr class="sep">
+
+<!-- PART 2 -->
+<h2>Part 2 — Numbers to Completely Exclude</h2>
+<label for="inp2">Numbers to omit from all combinations (comma-separated, 1–49):</label>
+<input type="text" id="inp2" placeholder="e.g. 8,15,21,32,43,47">
+<p class="info">Any combination containing one of these numbers is immediately discarded.</p>
+
+<hr class="sep">
+
+<!-- PART 3 -->
+<h2>Part 3 — Past Winning Combinations to Block (Exact Match)</h2>
+<label for="inp3">Past winning combinations to exclude (one per line):</label>
+<textarea id="inp3" placeholder="5,9,19,21,27,46
+1,8,9,32,35,37
+3 6 7 9 32 35"></textarea>
+<p class="info">Combinations exactly matching (same 6 numbers, any order) a row here will be removed.</p>
+
+<hr class="sep">
+
+<!-- RUN BUTTON -->
+<div class="btn-row">
+<button class="btn btn-primary" onclick="runAnalysis()">🔍 &nbsp;Run Analysis (Filters + AC Check)</button>
+</div>
+
+<!-- PART 5: RESULTS -->
+<div id="results" class="hidden">
+<h2>Part 5 — Analysis Results</h2>
+<div id="statCards" class="stats"></div>
+
+<h3 class="coll-hdr" onclick="toggle('secGood')">
+<span class="coll-icon" id="secGood_i">▼</span> ✅ Qualifying Combinations (AC 8–10)
+</h3>
+<div id="secGood"></div>
+
+<h3 class="coll-hdr" onclick="toggle('secAC')">
+<span class="coll-icon" id="secAC_i">▼</span> ❌ Discarded by Low AC (AC ≤ 7)
+</h3>
+<div id="secAC"></div>
+
+<h3 class="coll-hdr" onclick="toggle('secExcl')">
+<span class="coll-icon" id="secExcl_i">▼</span> 🚫 Discarded by Exclusion / Exact Match
+</h3>
+<div id="secExcl"></div>
+
+<div class="btn-row" id="compBtnArea">
+<button class="btn btn-gold" onclick="openModal()">🔄 &nbsp;Continue to Compression (Group into 複式注)</button>
+</div>
+</div>
+
+<!-- PART 6: COMPRESSION -->
+<div id="compSec" class="hidden">
+<h2>Part 6 — 複式注 Compression Results (八選六)</h2>
+<div id="compOut"></div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+<div class="modal-box">
+<h3>🔄 Proceed with Compression?</h3>
+<p>This will attempt to intelligently group your qualifying combinations into 8-number 複式注 (八選六) sets for optimal coverage against the "what a pity" scenario.</p>
+<p style="color:#f0c040;font-size:.84rem">
+Parent AC ≥ 15 &nbsp;|&nbsp; ≥ 70% sub-combos AC 8–10 &nbsp;|&nbsp; No duplicate sub-combos across groups
+</p>
+<button class="btn btn-gold" onclick="doCompress()">Yes, Compress</button>
+<button class="btn btn-dark" onclick="closeModal()">Cancel</button>
+</div>
+</div>
+
+<footer>
+This HTML logic is designed by Qubeley Advisory | Instagram: The_Qubeley
+</footer>
+
+<script>
+/* ================================================================
+   GLOBAL STATE
+   ================================================================ */
+let G_filtered = [];
+let G_discAC   = [];
+let G_discExcl = [];
+
+/* ================================================================
+   UTILITIES
+   ================================================================ */
+function ky(c){ return c.slice().sort((a,b)=>a-b).join(','); }
+
+function fmt(c){ return c.map(n=>String(n).padStart(2,'0')).join('  '); }
+
+function choose(arr, k){
+    const out=[], n=arr.length;
+    (function rec(s,cur){
+        if(cur.length===k){ out.push(cur.slice()); return; }
+        for(let i=s; i<=n-k+cur.length; i++){
+            cur.push(arr[i]);
+            rec(i+1,cur);
+            cur.pop();
+        }
+    })(0,[]);
+    return out;
+}
+
+function calcAC(nums){
+    const s=nums.slice().sort((a,b)=>a-b), d=new Set();
+    for(let i=0;i<s.length;i++)
+        for(let j=i+1;j<s.length;j++)
+            d.add(s[j]-s[i]);
+    return d.size-(s.length-1);
+}
+
+function statCard(v,label,color){
+    return '<div class="stat"><b style="color:'+(color||'#00d4ff')+'">'+v+'</b><span>'+label+'</span></div>';
+}
+
+/* ================================================================
+   PARSING
+   ================================================================ */
+function parseCombos(txt){
+    if(!txt.trim()) return [];
+    return txt.trim().split(/\n/).reduce(function(arr,raw){
+        var ln=raw.trim();
+        if(!ln) return arr;
+        ln=ln.replace(/^\[.*?\]\s*/,'').replace(/^\d+[\.\:\)]\s*/,'');
+        var m=ln.match(/\d+/g);
+        if(!m) return arr;
+        var ns=m.map(Number).filter(function(n){return n>=1&&n<=49;});
+        if(ns.length>=6){
+            var c=ns.slice(0,6).sort(function(a,b){return a-b;});
+            if(new Set(c).size===6) arr.push(c);
+        }
+        return arr;
+    },[]);
+}
+
+function parseNums(txt){
+    if(!txt.trim()) return [];
+    var m=txt.match(/\d+/g);
+    return m ? Array.from(new Set(m.map(Number).filter(function(n){return n>=1&&n<=49;}))) : [];
+}
+
+function parsePast(txt){
+    if(!txt.trim()) return [];
+    return txt.trim().split(/\n/).reduce(function(arr,raw){
+        var m=raw.trim().match(/\d+/g);
+        if(m){
+            var ns=m.map(Number).filter(function(n){return n>=1&&n<=49;});
+            if(ns.length>=6) arr.push(ns.slice(0,6).sort(function(a,b){return a-b;}));
+        }
+        return arr;
+    },[]);
+}
+
+/* ================================================================
+   ANALYSIS (Parts 2–5)
+   ================================================================ */
+function runAnalysis(){
+    var raw=parseCombos(document.getElementById('inp1').value);
+    if(!raw.length){
+        document.getElementById('results').classList.remove('hidden');
+        document.getElementById('results').innerHTML='<div class="alert alert-warn">⚠️ Please enter at least one valid 6-number combination in Part 1.</div>';
+        return;
+    }
+
+    var excl=new Set(parseNums(document.getElementById('inp2').value));
+    var past=new Set(parsePast(document.getElementById('inp3').value).map(ky));
+
+    var seen=new Set(), uniq=[];
+    for(var i=0;i<raw.length;i++){
+        var k=ky(raw[i]);
+        if(!seen.has(k)){ seen.add(k); uniq.push(raw[i]); }
+    }
+
+    G_filtered=[]; G_discAC=[]; G_discExcl=[];
+
+    for(var i=0;i<uniq.length;i++){
+        var c=uniq[i];
+        var excluded=false;
+        for(var j=0;j<c.length;j++){ if(excl.has(c[j])){ excluded=true; break; } }
+        if(excluded){ G_discExcl.push({combo:c,reason:'Contains excluded number'}); continue; }
+        if(past.has(ky(c))){ G_discExcl.push({combo:c,reason:'Matches past winning combo'}); continue; }
+        var v=calcAC(c);
+        if(v>=8&&v<=10) G_filtered.push({combo:c,ac:v});
+        else G_discAC.push({combo:c,ac:v});
+    }
+
+    renderResults(uniq.length);
+}
+
+function renderResults(total){
+    var sec=document.getElementById('results');
+    sec.classList.remove('hidden');
+    sec.innerHTML='<h2>Part 5 — Analysis Results</h2>'+
+        '<div id="statCards" class="stats"></div>'+
+        '<h3 class="coll-hdr" onclick="toggle(\'secGood\')"><span class="coll-icon" id="secGood_i">▼</span> ✅ Qualifying Combinations (AC 8–10)</h3>'+
+        '<div id="secGood"></div>'+
+        '<h3 class="coll-hdr" onclick="toggle(\'secAC\')"><span class="coll-icon" id="secAC_i">▼</span> ❌ Discarded by Low AC (AC ≤ 7)</h3>'+
+        '<div id="secAC"></div>'+
+        '<h3 class="coll-hdr" onclick="toggle(\'secExcl\')"><span class="coll-icon" id="secExcl_i">▼</span> 🚫 Discarded by Exclusion / Exact Match</h3>'+
+        '<div id="secExcl"></div>'+
+        '<div class="btn-row" id="compBtnArea"><button class="btn btn-gold" onclick="openModal()">🔄 &nbsp;Continue to Compression (Group into 複式注)</button></div>';
+
+    document.getElementById('compSec').classList.add('hidden');
+
+    document.getElementById('statCards').innerHTML=
+        statCard(total,'Total Input (dedup)')+
+        statCard(G_discExcl.length,'Excluded (Parts 2 & 3)','#ff4455')+
+        statCard(G_discAC.length,'Discarded (AC ≤ 7)','#ffa800')+
+        statCard(G_filtered.length,'Qualifying (AC 8–10)','#00e87b');
+
+    if(G_filtered.length){
+        var h='<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Combination</th><th>AC</th></tr></thead><tbody>';
+        for(var i=0;i<G_filtered.length;i++){
+            var r=G_filtered[i];
+            h+='<tr><td>'+(i+1)+'</td><td class="c-num">'+fmt(r.combo)+'</td><td class="ac-ok">'+r.ac+'</td></tr>';
+        }
+        h+='</tbody></table></div>';
+        document.getElementById('secGood').innerHTML=h;
+    } else {
+        document.getElementById('secGood').innerHTML='<div class="alert alert-warn">No combinations passed the AC 8–10 filter.</div>';
+    }
+
+    if(G_discAC.length){
+        var h='<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Combination</th><th>AC</th></tr></thead><tbody>';
+        for(var i=0;i<G_discAC.length;i++){
+            var r=G_discAC[i];
+            h+='<tr><td>'+(i+1)+'</td><td class="c-num">'+fmt(r.combo)+'</td><td class="ac-bad">'+r.ac+'</td></tr>';
+        }
+        h+='</tbody></table></div>';
+        document.getElementById('secAC').innerHTML=h;
+    } else {
+        document.getElementById('secAC').innerHTML='<div class="alert alert-ok">None discarded — all passed AC filter.</div>';
+    }
+
+    if(G_discExcl.length){
+        var h='<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Combination</th><th>Reason</th></tr></thead><tbody>';
+        for(var i=0;i<G_discExcl.length;i++){
+            var r=G_discExcl[i];
+            h+='<tr><td>'+(i+1)+'</td><td class="c-num">'+fmt(r.combo)+'</td><td>'+r.reason+'</td></tr>';
+        }
+        h+='</tbody></table></div>';
+        document.getElementById('secExcl').innerHTML=h;
+    } else {
+        document.getElementById('secExcl').innerHTML='<p class="info">No exclusions applied.</p>';
+    }
+
+    if(G_filtered.length<2){
+        document.getElementById('compBtnArea').classList.add('hidden');
+    }
+}
+
+/* ================================================================
+   COLLAPSIBLE & MODAL
+   ================================================================ */
+function toggle(id){
+    var el=document.getElementById(id);
+    var ic=document.getElementById(id+'_i');
+    var vis=el.style.display!=='none';
+    el.style.display=vis?'none':'';
+    if(ic) ic.classList.toggle('closed',vis);
+}
+function openModal(){ document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+/* ================================================================
+   COMPRESSION (Part 6)
+   ================================================================ */
+function doCompress(){
+    closeModal();
+    var sec=document.getElementById('compSec');
+    sec.classList.remove('hidden');
+    document.getElementById('compOut').innerHTML='<div class="alert alert-info">⏳ Processing compression — please wait…</div>';
+    setTimeout(runCompression,80);
+}
+
+function runCompression(){
+    var combos=[];
+    for(var i=0;i<G_filtered.length;i++) combos.push(G_filtered[i].combo.slice());
+    if(combos.length<2){
+        document.getElementById('compOut').innerHTML='<div class="alert alert-warn">Need ≥ 2 qualifying combinations to attempt compression.</div>';
+        return;
+    }
+
+    var tgtKeys=new Set(combos.map(ky));
+    var remaining=combos.slice();
+    var usedSubs=new Set();
+    var groups=[];
+    var safety=60;
+
+    while(remaining.length>=2 && safety-->0){
+        var best=findBest(remaining,usedSubs,tgtKeys);
+        if(!best||best.covN<2) break;
+        groups.push(best);
+        for(var i=0;i<best.subKeys.length;i++) usedSubs.add(best.subKeys[i]);
+        var covSet=new Set(best.covKeys);
+        remaining=remaining.filter(function(c){return !covSet.has(ky(c));});
+    }
+
+    renderCompression(groups,remaining);
+}
+
+function findBest(rem,usedSubs,tgtKeys){
+    var best=null, bestS=0;
+    var lim=Math.min(rem.length,120);
+
+    var freq=new Array(50).fill(0);
+    for(var i=0;i<rem.length;i++) for(var j=0;j<rem[i].length;j++) freq[rem[i][j]]++;
+    var topNums=[];
+    for(var i=1;i<=49;i++) if(freq[i]>0) topNums.push(i);
+    topNums.sort(function(a,b){return freq[b]-freq[a];});
+
+    var tried=new Set();
+
+    function tryC(eight){
+        var sorted=eight.slice().sort(function(a,b){return a-b;});
+        var k8=sorted.join(',');
+        if(tried.has(k8)) return;
+        tried.add(k8);
+        var r=evalCand(sorted,rem,usedSubs,tgtKeys);
+        if(r&&r.covN>bestS){ best=r; bestS=r.covN; }
+    }
+
+    /* Strategy A: pairs with union = 8 */
+    for(var i=0;i<lim;i++){
+        for(var j=i+1;j<lim;j++){
+            var u=unionOf(rem[i],rem[j]);
+            if(u.length===8) tryC(u);
+        }
+    }
+
+    /* Strategy B: pairs with union = 7, try adding top numbers */
+    if(bestS<3){
+        for(var i=0;i<lim;i++){
+            for(var j=i+1;j<lim;j++){
+                var u=unionOf(rem[i],rem[j]);
+                if(u.length===7){
+                    var uSet=new Set(u);
+                    var cands=topNums.filter(function(n){return !uSet.has(n);}).slice(0,12);
+                    for(var ci=0;ci<cands.length;ci++){
+                        tryC(u.concat(cands[ci]));
+                    }
+                }
+            }
+        }
+    }
+
+    /* Strategy C: single combo + 2 top numbers */
+    if(bestS<2){
+        var sl=Math.min(rem.length,50);
+        for(var i=0;i<sl;i++){
+            var cSet=new Set(rem[i]);
+            var tn=topNums.filter(function(n){return !cSet.has(n);}).slice(0,12);
+            for(var a=0;a<tn.length;a++){
+                for(var b=a+1;b<tn.length;b++){
+                    tryC(rem[i].concat([tn[a],tn[b]]));
+                }
+            }
+        }
+    }
+
+    return best;
+}
+
+function unionOf(a,b){
+    var s=new Set(a);
+    for(var i=0;i<b.length;i++) s.add(b[i]);
+    return Array.from(s).sort(function(x,y){return x-y;});
+}
+
+function evalCand(eight,rem,usedSubs,tgtKeys){
+    if(eight.length!==8) return null;
+    var pAC=calcAC(eight);
+    if(pAC<15) return null;
+
+    var subs=choose(eight,6);
+    var subKeys=[];
+    for(var i=0;i<subs.length;i++) subKeys.push(ky(subs[i]));
+
+    for(var i=0;i<subKeys.length;i++){
+        if(usedSubs.has(subKeys[i])) return null;
+    }
+
+    var good=0;
+    var details=[];
+    for(var i=0;i<subs.length;i++){
+        var v=calcAC(subs[i]);
+        var ok=v>=8&&v<=10;
+        if(ok) good++;
+        details.push({combo:subs[i],ac:v,ok:ok,hit:tgtKeys.has(subKeys[i])});
+    }
+    if(good/28<0.7) return null;
+
+    var remKeys=new Set(rem.map(ky));
+    var covKeys=[];
+    for(var i=0;i<subKeys.length;i++){
+        if(remKeys.has(subKeys[i])) covKeys.push(subKeys[i]);
+    }
+
+    var allHit=0;
+    for(var i=0;i<subKeys.length;i++){
+        if(tgtKeys.has(subKeys[i])) allHit++;
+    }
+
+    return {nums:eight,pAC:pAC,details:details,subKeys:subKeys,good:good,covN:covKeys.length,covKeys:covKeys,allHit:allHit};
+}
+
+/* ================================================================
+   RENDER COMPRESSION
+   ================================================================ */
+function renderCompression(groups,ungrouped){
+    var h='';
+    var totalSubs=groups.length*28;
+    var totalCov=0;
+    for(var i=0;i<groups.length;i++) totalCov+=groups[i].covN;
+
+    var costIndiv=G_filtered.length*10;
+    var costComp=groups.length*280+ungrouped.length*10;
+
+    h+='<div class="stats">';
+    h+=statCard(groups.length,'複式注 Groups Formed');
+    h+=statCard(ungrouped.length,'Ungrouped (獨立注)','#ffa800');
+    h+=statCard(totalCov+' / '+G_filtered.length,'Original Combos Covered','#00e87b');
+    h+=statCard(totalSubs,'Total Sub-Combos in Groups');
+    h+='</div>';
+
+    h+='<div class="stats">';
+    h+=statCard('HK$'+costIndiv.toLocaleString(),'Cost: All as 獨立注 ($10 each)','#ffa800');
+    h+=statCard('HK$'+costComp.toLocaleString(),'Cost: Compressed Plan','#f0c040');
+    h+='</div>';
+
+    /* Overlap verification */
+    var allK=[], dupeFound=false;
+    for(var i=0;i<groups.length;i++)
+        for(var j=0;j<groups[i].subKeys.length;j++) allK.push(groups[i].subKeys[j]);
+    var uniqK=new Set(allK);
+    if(uniqK.size<allK.length) dupeFound=true;
+
+    if(dupeFound){
+        h+='<div class="alert alert-warn">⚠️ WARNING: Duplicate sub-combinations detected across groups. Review carefully.</div>';
+    } else if(groups.length){
+        h+='<div class="alert alert-ok">✅ Verified: zero duplicate sub-combinations across all groups. No wasted cost.</div>';
+    }
+
+    /* Group cards */
+    if(groups.length){
+        h+='<h3 style="margin-top:18px">📦 Compressed 複式注 Groups (八選六)</h3>';
+        for(var gi=0;gi<groups.length;gi++){
+            var g=groups[gi];
+            var pct=(g.good/28*100).toFixed(1);
+            h+='<div class="gcard">';
+            h+='<div class="gcard-title">Group '+(gi+1)+' — 八選六 複式注</div>';
+            h+='<div class="gcard-nums">'+fmt(g.nums)+'</div>';
+            h+='<div class="gcard-meta">';
+            h+='<span>Parent AC: <strong style="color:#00d4ff">'+g.pAC+'</strong></span>';
+            h+='<span>Quality: <strong style="color:#00e87b">'+g.good+'/28 ('+pct+'%)</strong> AC 8–10</span>';
+            h+='<span>Covers: <strong style="color:#f0c040">'+g.allHit+'</strong> of your original combos</span>';
+            h+='<span>Cost: <strong>HK$280</strong> (28 × $10)</span>';
+            h+='</div>';
+            h+='<div class="coll-hdr" onclick="toggle(\'gsub'+gi+'\')" style="margin-top:10px;color:#555;font-size:.82rem">';
+            h+='<span class="coll-icon closed" id="gsub'+gi+'_i">▼</span> Show all 28 sub-combinations';
+            h+='</div>';
+            h+='<div id="gsub'+gi+'" style="display:none" class="sub-list">';
+            for(var si=0;si<g.details.length;si++){
+                var d=g.details[si];
+                var cls=d.hit?'sub-g sub-match':(d.ok?'sub-g':'sub-b');
+                var tag=d.hit?' ★ YOUR COMBO':'';
+                h+='<div class="sub-item '+cls+'">'+String(si+1).padStart(2,' ')+'. '+fmt(d.combo)+'  AC='+d.ac+tag+'</div>';
+            }
+            h+='</div>';
+            h+='</div>';
+        }
+    }
+
+    /* Ungrouped */
+    if(ungrouped.length){
+        h+='<h3 style="margin-top:18px">📌 Ungrouped — Play as 獨立注 (HK$10 each)</h3>';
+        h+='<p class="info">These could not be efficiently grouped into valid 複式注 sets under the required constraints.</p>';
+        h+='<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Combination</th><th>AC</th></tr></thead><tbody>';
+        for(var i=0;i<ungrouped.length;i++){
+            h+='<tr><td>'+(i+1)+'</td><td class="c-num">'+fmt(ungrouped[i])+'</td><td class="ac-ok">'+calcAC(ungrouped[i])+'</td></tr>';
+        }
+        h+='</tbody></table></div>';
+    }
+
+    if(!groups.length&&!ungrouped.length){
+        h+='<div class="alert alert-warn">No combinations available for compression.</div>';
+    }
+
+    /* Strategy explanation */
+    if(groups.length||ungrouped.length){
+        h+='<div style="margin-top:22px;padding:14px;border:1px solid #222;border-radius:6px;background:#060606">';
+        h+='<h3 style="color:#00d4ff;margin-bottom:8px">📊 Summary</h3>';
+        h+='<p style="font-size:.85rem;color:#888;line-height:1.7">';
+        h+='<strong style="color:#ccc">Original plan:</strong> '+G_filtered.length+' individual bets × HK$10 = <strong style="color:#ffa800">HK$'+costIndiv.toLocaleString()+'</strong><br>';
+        h+='<strong style="color:#ccc">Compressed plan:</strong> '+groups.length+' 複式注 × HK$280 + '+ungrouped.length+' 獨立注 × HK$10 = <strong style="color:#f0c040">HK$'+costComp.toLocaleString()+'</strong><br>';
+        var extraCombos=totalSubs-totalCov+ungrouped.length;
+        h+='<strong style="color:#ccc">Additional coverage:</strong> '+extraCombos+' extra high-quality combinations provide insurance against the "what a pity" scenario — where your chosen numbers win but are spread across separate tickets.';
+        h+='</p></div>';
+    }
+
+    document.getElementById('compOut').innerHTML=h;
+    document.getElementById('compSec').scrollIntoView({behavior:'smooth'});
+}
+</script>
+
+
+</body></html>
